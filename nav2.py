@@ -2,6 +2,28 @@ import osmnx as ox
 import networkx as nx
 import folium
 
+def visualize_nearest_nodes(G, start_coords, end_coords):
+    """Visualize the nearest nodes on the graph for debugging."""
+    start_node = ox.distance.nearest_nodes(G, start_coords[1], start_coords[0])
+    end_node = ox.distance.nearest_nodes(G, end_coords[1], end_coords[0])
+    
+    start_node_coords = (G.nodes[start_node]['y'], G.nodes[start_node]['x'])
+    end_node_coords = (G.nodes[end_node]['y'], G.nodes[end_node]['x'])
+    
+    print(f"Start Node Coordinates: {start_node_coords}")
+    print(f"End Node Coordinates: {end_node_coords}")
+
+    # Create a map to visualize nodes
+    map = folium.Map(location=start_coords, zoom_start=14)
+    folium.Marker(location=start_coords, popup='Start', icon=folium.Icon(color='green')).add_to(map)
+    folium.Marker(location=end_coords, popup='End', icon=folium.Icon(color='red')).add_to(map)
+    folium.Marker(location=start_node_coords, popup='Start Node', icon=folium.Icon(color='blue')).add_to(map)
+    folium.Marker(location=end_node_coords, popup='End Node', icon=folium.Icon(color='purple')).add_to(map)
+
+    # Save the debug map to visualize the nodes
+    map.save('debug_map.html')
+    print("Debug map saved as debug_map.html")
+
 def dijkstra_shortest_path(G, start_coords, end_coords):
     """Find the shortest path between two coordinates using Dijkstra's Algorithm."""
     # Find the nearest nodes on the graph to the start and end points
@@ -48,9 +70,9 @@ def create_map(start_coords, end_coords, route):
     print("Map saved as route_map.html")
 
 def main():
-    # Start and end coordinates
-    start_coords = (25.197033599999997, 55.27413294647308)  # Burj Khalifa
-    end_coords = (25.203000, 55.388550)  # Academic City, Dubai
+    # Start and end coordinates (adjust these coordinates if necessary)
+    start_coords = (25.197, 55.274)  # Burj Khalifa
+    end_coords = (25.203, 55.388)  # Adjust as needed
 
     print("Fetching the road network...")
     # Limit the area by using a bounding box instead of the entire Dubai region
@@ -61,6 +83,9 @@ def main():
     G = ox.project_graph(G)
 
     print("Road network fetched and projected successfully!")
+
+    # Visualize the nearest nodes for debugging
+    visualize_nearest_nodes(G, start_coords, end_coords)
 
     # Find the shortest path using Dijkstra's algorithm
     print("Finding shortest path...")
